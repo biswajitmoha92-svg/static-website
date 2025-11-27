@@ -1,0 +1,3 @@
+[submodule "biswajit"]
+	path = biswajit
+	url = https://github.com/biswajitmoha92-svg/static-website.git
