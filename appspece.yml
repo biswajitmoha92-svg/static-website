@@ -3,7 +3,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo "Logging in to Amazon S3..."
+      - echo "Logging in to Amazon ECR..."
       - AWS_ACCOUNT_ID=304686172331
       - AWS_REGION=ap-south-1
       - REPOSITORY_NAME=rapyder-assignments
@@ -17,7 +17,7 @@ phases:
  
   post_build:
     commands:
-      - echo "Pushing Docker image to S3..."
+      - echo "Pushing Docker image to ECR..."
       - docker push $IMAGE_URI
       - echo "Creating imagedefinitions.json for CodeDeploy..."
       - printf '[{"name":"app","imageUri":"%s"}]' $IMAGE_URI > imagedefinitions.json
