@@ -1,11 +1,29 @@
-version: 0.0
-os: linux
-hooks:
-  BeforeInstall:
-    - location: scripts/stop.sh
-      timeout: 180
-      runas: root
-  AfterInstall:
-    - location: scripts/start.sh
-      timeout: 180
-      runas: root
+version: 0.2
+ 
+phases:
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR..."
+      - export AWS_ACCOUNT_ID=304686172331
+      - export AWS_REGION=ap-south-1
+      - export REPOSITORY_NAME=rapyder-assignments
+      - export IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+ 
+  build:
+    commands:
+      - echo "Building Docker image..."
+      - docker build -t $IMAGE_URI .
+ 
+  post_build:
+    commands:
+      - echo "Pushing Docker image..."
+      - docker push $IMAGE_URI
+      - echo "Creating imagedefinitions.json..."
+      - printf '[{"name":"app","imageUri":"%s"}]' $IMAGE_URI > imagedefinitions.json
+ 
+artifacts:
+  files:
+    - appspec.yml
+    - scripts/**/*
+    - imagedefinitions.json
