@@ -4,7 +4,7 @@ phases:
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
-      - export AWS_ACCOUNT_ID=304686172331
+      - export AWS_ACCOUNT_ID=089358501446
       - export AWS_REGION=ap-south-1
       - export REPOSITORY_NAME=rapyder-assignments
       - export IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
