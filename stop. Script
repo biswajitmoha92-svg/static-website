@@ -1,6 +1,10 @@
 #!/bin/bash
 
-docker stop app || true
+echo "Stopping and removing old Docker containers..."
 
-docker rm app || true
- 
+docker stop test-codepipeline || true
+docker rm test-codepipeline || true
+
+docker system prune -af || true
+
+echo "Cleanup completed."
