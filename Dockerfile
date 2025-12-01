@@ -1,7 +1,3 @@
-FROM nginx:alpine
+FROM public.ecr.aws/nginx/nginx:alpine
 
-COPY ./public /usr/share/nginx/html
-
-EXPOSE 80
-
-
+COPY ./coffee-shop-website-design-main /usr/share/nginx/html
