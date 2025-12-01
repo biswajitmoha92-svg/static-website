@@ -1,29 +1,17 @@
-version: 0.2
- 
-phases:
-  pre_build:
-    commands:
-      - echo "Logging in to Amazon S3..."
-      - AWS_ACCOUNT_ID=304686172331
-      - AWS_REGION=ap-south-1
-      - REPOSITORY_NAME=rapyder-assignments
-      - IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
- 
-  build:
-    commands:
-      - echo "Building Docker image..."
-      - docker build -t $IMAGE_URI .
- 
-  post_build:
-    commands:
-      - echo "Pushing Docker image to S3..."
-      - docker push $IMAGE_URI
-      - echo "Creating imagedefinitions.json for CodeDeploy..."
-      - printf '[{"name":"app","imageUri":"%s"}]' $IMAGE_URI > imagedefinitions.json
- 
-artifacts:
-  files:
-    - appspec.yml
-    - scripts/**/*
-    - imagedefinitions.json
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /home/ec2-user/app
+
+hooks:
+  BeforeInstall:
+    - location: scripts/cleanup.sh
+      timeout: 300
+      runas: ec2-user
+
+  AfterInstall:
+    - location: scripts/pull_and_run.sh
+      timeout: 300
+      runas: ec2-user
