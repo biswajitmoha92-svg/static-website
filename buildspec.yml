@@ -1,32 +1,21 @@
 version: 0.2
 
-env:
-  variables:
-    AWS_ACCOUNT_ID: "089358501446"
-    AWS_REGION: "ap-south-1"
-    REPOSITORY_NAME: "test-codepipeline"
-
 phases:
   pre_build:
     commands:
-      - echo "Logging in to Amazon ECR..."
-      - IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
   build:
     commands:
-      - echo "Building Docker image..."
+      - echo Building the Docker image...
       - docker build -t $IMAGE_URI .
-
+      - docker tag $IMAGE_URI:latest $IMAGE_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
   post_build:
     commands:
-      - echo "Pushing Docker image..."
+      - echo Pushing the Docker image...
       - docker push $IMAGE_URI
-      - echo "Creating imagedefinitions.json..."
-      - printf '[{"name":"app","imageUri":"%s"}]' "$IMAGE_URI" > imagedefinitions.json
+      - printf '[{"name":"%s","imageUri":"%s"}]' "test-codepipeline" "$IMAGE_URI" > imagedefinitions.json
 
 artifacts:
   files:
-    - appspec.yml
     - imagedefinitions.json
-
