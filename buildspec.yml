@@ -1,14 +1,17 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_REGION: "ap-south-1"
+    AWS_ACCOUNT_ID: "089358501446"
+    REPOSITORY_NAME: "test-codepipeline"
+
 phases:
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
-      - export AWS_ACCOUNT_ID=089358501446
-      - export AWS_REGION=ap-south-1
-      - export REPOSITORY_NAME=satic-websites
-      - export IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - export IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest"
 
   build:
     commands:
@@ -20,7 +23,7 @@ phases:
       - echo "Pushing Docker image..."
       - docker push $IMAGE_URI
       - echo "Creating imagedefinitions.json..."
-      - printf '[{"name":"app","imageUri":"%s"}]' $IMAGE_URI > imagedefinitions.json
+      - printf '[{"name":"app","imageUri":"%s"}]' "$IMAGE_URI" > imagedefinitions.json
 
 artifacts:
   files:
