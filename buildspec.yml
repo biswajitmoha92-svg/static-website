@@ -1,20 +1,27 @@
 version: 0.2
 
+env:
+  variables:
+    IMAGE_NAME: "test-codepipeline"
+
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t $IMAGE_URI .
-      - docker tag $IMAGE_URI:latest $IMAGE_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_NAME:latest .
+
   post_build:
     commands:
-      - echo Pushing the Docker image...
-      - docker push $IMAGE_URI
-      - printf '[{"name":"%s","imageUri":"%s"}]' "test-codepipeline" "$IMAGE_URI" > imagedefinitions.json
+      - echo Pushing image to ECR...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_NAME:latest
+
+      # Create imagedefinitions.json for CodePipeline
+      - printf '[{"name":"%s","imageUri":"%s"}]' "$IMAGE_NAME" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_NAME:latest" > imagedefinitions.json
 
 artifacts:
   files:
