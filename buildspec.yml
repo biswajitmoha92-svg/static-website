@@ -8,8 +8,8 @@ phases:
       - export AWS_REGION=ap-south-1
       - export REPOSITORY_NAME=rapyder-assignments
       - export IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
- 
+      - aws ecr get-login-password --region $AWS_REGION |pre_build:aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
   build:
     commands:
       - echo "Building Docker image..."
