@@ -2,16 +2,16 @@ version: 0.2
 
 env:
   variables:
-    AWS_REGION: "ap-south-1"
     AWS_ACCOUNT_ID: "089358501446"
+    AWS_REGION: "ap-south-1"
     REPOSITORY_NAME: "test-codepipeline"
 
 phases:
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
+      - IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-      - export IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME:latest"
 
   build:
     commands:
@@ -27,6 +27,4 @@ phases:
 
 artifacts:
   files:
-    - appspec.yml
-    - scripts/**/*
     - imagedefinitions.json
