@@ -8,20 +8,23 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+      - REGION=$AWS_DEFAULT_REGION
+      - IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$IMAGE_NAME:latest
+      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
 
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_NAME:latest .
+      - docker build -t $IMAGE_URI .
 
   post_build:
     commands:
       - echo Pushing image to ECR...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_NAME:latest
+      - docker push $IMAGE_URI
 
-      # Create imagedefinitions.json for CodePipeline
-      - printf '[{"name":"%s","imageUri":"%s"}]' "$IMAGE_NAME" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_NAME:latest" > imagedefinitions.json
+      - echo Creating imagedefinitions.json...
+      - printf '[{"name":"%s","imageUri":"%s"}]' "$IMAGE_NAME" "$IMAGE_URI" > imagedefinitions.json
 
 artifacts:
   files:
