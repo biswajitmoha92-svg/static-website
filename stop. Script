@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "Stopping old Docker containers..."
+docker stop test-codepipeline || true
+
+echo "Removing old Docker containers..."
+docker rm test-codepipeline || true
+
+echo "Cleaning unused Docker resources..."
+docker system prune -af || true
+
+echo "Cleanup completed."
