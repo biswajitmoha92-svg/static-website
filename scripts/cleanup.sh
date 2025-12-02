@@ -1,3 +1,4 @@
+nano scripts/pull_and_run.sh
 FROM public.ecr.aws/nginx/nginx:alpine
 
 # Remove default nginx files
