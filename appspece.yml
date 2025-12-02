@@ -15,4 +15,3 @@ hooks:
     - location: scripts/pull_and_run.sh
       timeout: 300
       runas: ec2-user
-
